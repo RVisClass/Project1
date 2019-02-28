@@ -65,3 +65,29 @@ g.append("g")
 // Y Axis
 var yAxisCall = d3.axisLeft(y)
     .tickFormat(function(d){ return +d; });
+    
+    
+//Read the data
+
+
+
+//Average for days of the year
+
+
+//Transition
+
+
+//Highlight days of the year
+
+
+//Transition
+
+
+//Days of the week graph
+
+
+
+//Transition
+
+
+//Months of the year graph
