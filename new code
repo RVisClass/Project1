@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
@@ -151,6 +153,9 @@ for (k = 0; k < 15; k++) {
                     return "grey";
                 });
     })
+    // use blockbuilder.org to test code
+// you can also upload the json file onto that site
+// just click the plus icon under login to upload a file
   </script>
 </body>
 
