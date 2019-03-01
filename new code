@@ -139,6 +139,32 @@ for (k = 0; k < 15; k++) {
   var dateVal = data.map(function(d) {
     return d.date_of_month;
   });
+  /*
+  //leap year
+      // should happen four times
+      // 2000, 2004, 2008, 2012
+  // its 59 days away from Jan 1
+  /*var arr = new Array(366);
+  var i;
+  var leapBirth = 0;
+  //var regBirth = 0;
+  for(int i = 0; i < birthVal.length; i++) {
+    //appears 61 in csv original file
+    // 1522, 2983, 4444
+    if(i == 60 || i == 1521 || i == 2982 || i == 4443) {
+    
+    leapBirth = birthVal + leapBirth;
+    arr[60] = leapBirth;
+    } else if(arr.length > 365) {
+    var counter = 0;
+    //arr[counter];
+    
+    } else {
+    
+    arr[counter] = arr[counter] + birthVal;
+    counter++;
+    }
+  }*/
   var barWidth = (width / data.length);
   var bars = g.selectAll("rect")
                 .data(birthVal)
