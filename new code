@@ -143,11 +143,14 @@ for (k = 0; k < 15; k++) {
       // should happen four times
       // 2000, 2004, 2008, 2012
   // its 59 days away from Jan 1
-  /*var arr = new Array(366);
+  /*
+  dont uncomment this code block in blockbuilder
+  or blockbuilder will freeze then crash
+  var arr = new Array(366);
   var i;
   var leapBirth = 0;
   //var regBirth = 0;
-  for(int i = 0; i < birthVal.length; i++) {
+  for(i = 0; i < birthVal.length; i++) {
     //appears 61 in csv original file
     // 1522, 2983, 4444
     // row 1 has the attribute names
@@ -159,12 +162,27 @@ for (k = 0; k < 15; k++) {
     var counter = 0;
     //arr[counter];
     
+    } else if (counter = 60) {
+    counter++;
     } else {
     
     arr[counter] = arr[counter] + birthVal;
     counter++;
     }
-  }*/
+  }
+  var j;
+  for(j = 0; j < arr.length; j++) {
+  if(j= 60) {
+  var leap = 0;
+  leap = (leap + arr[j])/4;
+  arr[j] = leap;
+  } else {
+  var regVal = 0;
+  regVal = (regVal + arr[j])/15;
+  arr[j] = regVal;
+  }
+  dont uncomment this code block in blockbuilder
+  or blockbuilder will freeze then crash*/
   var barWidth = (width / data.length);
   var bars = g.selectAll("rect")
                 .data(birthVal)
