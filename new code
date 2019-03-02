@@ -25,10 +25,10 @@ var g = d3.select("chart-area")
 var time = 0;
 
 // Scales
-var x = d3.scaleBand()
+var x = d3.scaleLinear()
     //.base(10)
     .range([0, width])
-    .domain([0, 150000]);
+    .domain([0, 70]);
     console.log(x)
 var y = d3.scaleLinear()
     .range([height, 0])
@@ -63,9 +63,9 @@ var yLabel = g.append("text")
     .text("1800");*/
 
 // X Axis
-var xAxisCall = d3.axisBottom(x)
+var xAxisCall = d3.axisBottom(x);
 		//.tickFormat(function(d){ return +d; });
-    .tickValues(["1"])
+    //.tickValues(["1"])
     //.tickFormat(d3.format("$"));
 g.append("g")
     .attr("class", "x axis")
@@ -73,13 +73,17 @@ g.append("g")
     .call(xAxisCall);
 
 // Y Axis
-var yAxisCall = d3.axisLeft(y)
-    .tickFormat(function(d){ return +d; });
+var yAxisCall = d3.axisLeft(y);
+    //.tickFormat(function(d){ return +d; });
     
 g.append("g")
     .attr("class", "y axis")
     .call(yAxisCall);//step 1
     
+    var line = d3.line()
+    .x(function(d,i) { return x(i); }) // set the x values for the line generator
+    .y(function(d) { return y(d); }) // set the y values for the line generator 
+    //.curve(d3.curveMonotoneX)
 d3.json("births.json").then(function(data){
     console.log(data);//step 0
   data.forEach(function(d) {
@@ -164,8 +168,17 @@ d3.json("births.json").then(function(data){
   dayAvg = tempDay/15;// 15 years
     yearAvg[j] = dayAvg;
   }
+    
+    g.append("path")
+      .datum(yearAvg)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      //.attr("stroke-linejoin", "round")
+      //.attr("stroke-linecap", "round")
+      .attr("d", line);
   }//end of getting average of all years
-  var barWidth = (width / yearAvg.length);
+  /*var barWidth = (width / yearAvg.length);
   var bars = g.selectAll("rect")
                 .data(yearAvg)
             .enter().append("rect")
@@ -186,7 +199,7 @@ d3.json("births.json").then(function(data){
          				//return "translate("+ translate +")";
                 .attr("fill", function(d) {
                     return "grey";
-                });
+                });*/
     })
     // use blockbuilder.org to test code
 // you can also upload the json file onto that site
