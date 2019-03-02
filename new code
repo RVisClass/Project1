@@ -25,14 +25,14 @@ var g = d3.select("chart-area")
 var time = 0;
 
 // Scales
-var x = d3.scaleLog()
-    .base(10)
+var x = d3.scaleBand()
+    //.base(10)
     .range([0, width])
     .domain([0, 150000]);
     console.log(x)
 var y = d3.scaleLinear()
     .range([height, 0])
-    .domain([0, 20000]);
+    .domain([0, 14000]);
     console.log(y)
 //var area = d3.scaleLinear()
     //.range([25*Math.PI, 1500*Math.PI])
@@ -46,14 +46,14 @@ var xLabel = g.append("text")
     .attr("x", width / 2)
     .attr("font-size", "20px")
     .attr("text-anchor", "middle")
-    .text("GDP Per Capita ($)");
+    .text("Months");
 var yLabel = g.append("text")
     .attr("transform", "rotate(-90)")
     .attr("y", -40)
     .attr("x", -170)
     .attr("font-size", "20px")
     .attr("text-anchor", "middle")
-    .text("Life Expectancy (Years)")
+    .text("Births")
 /*var timeLabel = g.append("text")
     .attr("y", height -10)
     .attr("x", width - 40)
@@ -88,45 +88,6 @@ d3.json("births.json").then(function(data){
     d.month = +d.month;
     d.date_of_month = +d.date_of_month;
         });
-  //var i;
-  /*var i;
-  var arr = new Array(366);
-for (i = 0; i < 15; i++) { 
-  var j;
-  for (j = 0; j < arr.length; j++) {
-    if(d.month == 2 && d.date_of_month == 29) {
-      //set date to last item in array
-      // should happen four times
-      // 2000, 2004, 2008, 2012
-      var leapBirths = 0;
-      leapBirths = d.births + leapBirths;
-      arr[365] == d.births;
-    } else {
-      var regBirths = 0;
-      regBirths = d.births + regBirths;
-      arr[j] = regbirths;
-    }
-    
-  }
-}
-  var k;
-for (k = 0; k < 15; k++) {
-  if(d.month == 2 && d.date_of_month == 29) {
-    arr[365]= arr[365]/4;
-  } else {
-    arr[k]= arr[k]/15;
-  }
-  
-} */
-  var arr = new Array(366);
-  var k;
-  /*data.forEach(function(d) {
-    arr[k] = d.births;
-  }*/
-	/*for (k = 0; k < 100; k++) {
-    arr[k] = d.births;
-  }*/
-  //var dataset = [80, 100, 56, 120, 180, 30, 40, 120, 160];
  //creates an array with data of births
   var birthVal = data.map(function(d) {
     return d.births;
@@ -139,60 +100,72 @@ for (k = 0; k < 15; k++) {
   var dateVal = data.map(function(d) {
     return d.date_of_month;
   });
-  //leap year
+//leap year
       // should happen four times
       // 2000, 2004, 2008, 2012
   // its 59 days away from Jan 1
-  /*
-  dont uncomment this code block in blockbuilder
-  or blockbuilder will freeze then crash
-  var arr = new Array(366);
+  //this is for adding each similar day
+ var year2 = new Array(366);
+ var counter = 0;
+ var leap = 4;
+  var counter2 = 0;
   var i;
-  var leapBirth = 0;
-  //var regBirth = 0;
-  for(i = 0; i < birthVal.length; i++) {
-    //appears 61 in csv original file
-    // 1522, 2983, 4444
-    // row 1 has the attribute names
-    if(i == 60 || i == 1521 || i == 2982 || i == 4443) {
-    
-    leapBirth = birthVal + leapBirth;
-    arr[60] = leapBirth;
-    } else if(arr.length > 365) {
-    var counter = 0;
-    //arr[counter];
-    
-    } else if (counter = 60) {
-    counter++;
-    } else {
-    
-    arr[counter] = arr[counter] + birthVal;
-    counter++;
-    }
-  }
+ for(i = 0; i < birthVal.length; i++) {
+        var temp = 0;
+   if(counter == 366) {
+     counter = 0;
+     temp = year2[counter];
+     year2[counter] = temp + birthVal[i];
+     counter++;
+     counter2++;
+     leap++;
+   } else if (i == 59 || i == 1520 || i == 2981 || i == 4442) {
+	   temp = year2[59];
+	   year2[59] = temp + birthVal[i];
+	     counter++;
+	     leap = 0;       
+   } else if (counter == 59) {
+	   counter++;
+   } else if(counter2 > 0) {
+     //year2[i] = birthVal[i];
+     //counter++;
+     temp = year2[counter];
+     year2[counter] = temp + birthVal[i];
+     counter++;
+   } else {
+     year2[i] = birthVal[i];
+     counter++;
+   }
+ } // end of adding each similar day
+  //getting the average of each day
+  var yearAvg = new Array(366);
   var j;
-  for(j = 0; j < arr.length; j++) {
-  if(j= 60) {
-  var leap = 0;
-  leap = (leap + arr[j])/4;
-  arr[j] = leap;
-  } else {
-  var regVal = 0;
-  regVal = (regVal + arr[j])/15;
-  arr[j] = regVal;
+  for(j = 0; j < yearAvg.length; j++) {
+    //temp variable for calculating days
+  var tempDay = 0;
+    //getting the leap year average
+  if(j == 59) {
+  var leapAvg = 0;
+  tempDay = year2[59];
+  leapAvg = tempDay/4;
+  yearAvg[59] = leapAvg;
+  } else { //getting averages of all other days
+  var dayAvg = 0;
+  tempDay = year2[j];
+  dayAvg = tempDay/15;// 15 years
+    yearAvg[j] = dayAvg;
   }
-  dont uncomment this code block in blockbuilder
-  or blockbuilder will freeze then crash*/
-  var barWidth = (width / data.length);
+  }//end of getting average of all years
+  var barWidth = (width / yearAvg.length);
   var bars = g.selectAll("rect")
-                .data(birthVal)
+                .data(yearAvg)
             .enter().append("rect")
             //need to flip graph
                 .attr("y", function(d){
                     return y(d);
                 })
                 .attr("x", function(d, i){
-                    return (i * 5);
+                    return (i * 1);
                 })
                 .attr("width", 10)
                 //this also helps flip the graph
@@ -211,6 +184,3 @@ for (k = 0; k < 15; k++) {
 // just click the plus icon under login to upload a file
   </script>
 </body>
-
-
-
