@@ -119,13 +119,22 @@ d3.json("births.json").then(function(data){
      counter++;
      counter2++;
      leap++;
-   } else if (i == 59 || i == 1520 || i == 2981 || i == 4442) {
+     // indexes for leap day in birthVal array
+     // i == 59 || i == 1520 || i == 2981 || i == 4442
+     // counter 59 is for the index number
+     // 59 is the leap day in the array year2
+   } else if (leap == 4 && counter == 59) {
 	   temp = year2[59];
 	   year2[59] = temp + birthVal[i];
 	     counter++;
-	     leap = 0;       
+	     leap = 0; 
+     //index 59 of array year2 is for leap day
    } else if (counter == 59) {
 	   counter++;
+     temp = year2[counter];
+	     year2[counter] = temp + birthVal[i];
+	     counter++;
+     //this is for every year after 2000
    } else if(counter2 > 0) {
      //year2[i] = birthVal[i];
      //counter++;
