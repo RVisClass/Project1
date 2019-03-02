@@ -69,7 +69,31 @@ g.append("g")
     var line = d3.line()
     .x(function(d,i) { return x(i); }) // set the x values for the line generator
     .y(function(d) { return y(d); }) // set the y values for the line generator 
+// legend for graph
+// color needs to be set by hand
+    var legend = g.append("g")
+    //starts at bottom right corner of graph
+    //positive x values move right
+    //negitive x values more left
+    //negative y values more up
+        .attr("transform", "translate(-30,-330)");   
+
+        
+        legend.append('rect')
+            .attr("y", height - 10)
+            .attr("x", width - 40)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", "steelblue");
+        legend.append('text')
+            .attr("y", height)
+            .attr("x", width)
+            .attr("font-size", "20px")
+            .attr("opacity", "0.4")
+            .attr("text-anchor", "middle")
+            .text("Births");
     //getting data
+    //remove data/ in data/births to get it to work on block builder
 d3.json("data/births.json").then(function(data){
     console.log(data);//step 0
     data.forEach(function(d) {
