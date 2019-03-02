@@ -185,6 +185,7 @@ for(j = 0; j < yearAvg.length; j++) {
         dayAvg = tempDay/15;// 15 years
         yearAvg[j] = dayAvg;
     }//end of getting average of all years
+    }
     //creating the path
     g.append("path")
         .datum(yearAvg)//puts data on line
@@ -192,7 +193,6 @@ for(j = 0; j < yearAvg.length; j++) {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);//line generator is called
-    }
 })
     // use blockbuilder.org to test code
 // you can also upload the json file onto that site
