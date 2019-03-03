@@ -597,6 +597,15 @@ var svgLegend = d3.select(".legend3").append("svg")
             // label that just has rect and births
             // births will only appear if per da text is present
             // it pushes it out
+// this makes the tooltip box appear over bars on graph
+// if this was commented out will appear below       
+var tooltip = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("background", "steelblue")
+    .text("a simple tooltip");               
     //getting data
     //remove data/ in data/births to get it to work on block builder
 d3.json("data/births.json").then(function(data){
@@ -798,7 +807,7 @@ d3.json("data/births.json").then(function(data){
   // variable frm for rounding the births to a whole number
   var frm = d3.format(".0f");
   var barWidth = (width / monthAvg.length);
-  var bars = g.selectAll("rect")
+  var bars2 = g.selectAll("rect")
                 .data(monthAvg)
             .enter().append("rect")
             //need to flip graph
