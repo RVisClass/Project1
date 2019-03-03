@@ -27,8 +27,11 @@
            value="Average Births per Month"
            onclick="getGraphThree()" />
 </div>
-<div class="legend3"></div>
-  <chart-area></chart-area>
+<chart-area></chart-area>
+<div class="legend1"></div>
+  <chart-area2></chart-area2>
+  <div class="legend2"></div>
+  <chart-area3></chart-area3>
   <script>
     // this will fetch the first graph 
     // of average births in a year
@@ -230,7 +233,7 @@ var margin = { left:80, right:20, top:50, bottom:100 };
 var height = 500 - margin.top - margin.bottom; 
 var width = 800 - margin.left - margin.right;
 
-var g = d3.select("chart-area")
+var g = d3.select("chart-area2")
     .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -283,7 +286,7 @@ g.append("g")
 // color needs to be set by hand
 var svgHeight = 100; 
 var svgWidth = 100;
-var svgLegend = d3.select(".legend3").append("svg")
+var svgLegend = d3.select(".legend1").append("svg")
             .attr("width", svgWidth)
             .attr("height", svgHeight);
     var legend = svgLegend.append("svg");
@@ -497,7 +500,7 @@ var margin = { left:80, right:20, top:50, bottom:100 };
 var height = 500 - margin.top - margin.bottom, 
     width = 800 - margin.left - margin.right;
 
-var g = d3.select("chart-area")
+var g = d3.select("chart-area3")
     .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -556,7 +559,7 @@ g.append("g")
 // color needs to be set by hand
 var svgHeight = 100; 
 var svgWidth = 100;
-var svgLegend = d3.select(".legend3").append("svg")
+var svgLegend = d3.select(".legend2").append("svg")
             .attr("width", svgWidth)
             .attr("height", svgHeight);
     var legend = svgLegend.append("svg");
