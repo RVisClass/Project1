@@ -129,7 +129,7 @@ g.append("g")
             .text("Births");
     //getting data
     //remove data/ in data/births to get it to work on block builder
-d3.json("births.json").then(function(data){
+d3.json("data/births.json").then(function(data){
     console.log(data);//step 0
     data.forEach(function(d) {
         d.births = +d.births;
@@ -337,7 +337,7 @@ var tooltip = d3.select("body")
 //getting data
 //remove data/ in data/births to get it to work on block builder
 //g.call(tip);
-d3.json("births.json").then(function(data){
+d3.json("data/births.json").then(function(data){
     console.log(data);//step 0
     data.forEach(function(d) {
         d.births = +d.births;
@@ -562,34 +562,44 @@ g.append("g")
     .attr("class", "y axis")
     .call(yAxisCall);//step 1
     //generates the line in d3
-    var line = d3.line()
-    .x(function(d,i) { return x(i); }) // set the x values for the line generator
-    .y(function(d) { return y(d); }) // set the y values for the line generator 
+    //var line = d3.line()
+    //.x(function(d,i) { return x(i); }) // set the x values for the line generator
+    //.y(function(d) { return y(d); }) // set the y values for the line generator 
 // legend for graph
 // color needs to be set by hand
-    var legend = g.append("g")
+var svgHeight = 100; 
+var svgWidth = 100;
+var svgLegend = d3.select(".legend3").append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+    var legend = svgLegend.append("svg");
     //starts at bottom right corner of graph
     //positive x values move right
     //negitive x values more left
     //negative y values more up
-        .attr("transform", "translate(-30,-330)");   
-        // legend symbol
+    //.attr("transform", "translate(-30,-330)")   
+
+        //legend symbol
         legend.append('rect')
-            .attr("y", height - 10)
-            .attr("x", width - 40)
+            .attr("y", svgHeight - 10)
+            .attr("x", svgWidth - 65)
             .attr("width", 10)
             .attr("height", 10)
-            .style("fill", "steelblue");
-        // legend text
+            .style("fill", "orange");
+            // legend text
         legend.append('text')
-            .attr("y", height)
-            .attr("x", width)
+            .attr("y", svgHeight)
+            .attr("x", svgWidth)
             .attr("font-size", "20px")
             .attr("text-anchor", "middle")
-            .text("Births");
+            .text("Births per da");
+            // test on label is strange
+            // label that just has rect and births
+            // births will only appear if per da text is present
+            // it pushes it out
     //getting data
     //remove data/ in data/births to get it to work on block builder
-d3.json("births.json").then(function(data){
+d3.json("data/births.json").then(function(data){
     console.log(data);//step 0
     data.forEach(function(d) {
         d.births = +d.births;
@@ -720,68 +730,69 @@ d3.json("births.json").then(function(data){
         decCount++;
   	}
   }
+  //console.log(monthArr);
   // end of for statement to calculate the mean
   // array for holding the averages of the months
   var monthAvg = new Array(12);
   // var x is for for loop
-  var x;
-  for(x = 0; x < monthAvg.length; x++) {
+  var u;
+  for(u = 0; u < monthAvg.length; u++) {
     // monthMean and monthAvg are temp values
     // monthMean will get the mean value from mean array
     // monthAvg will be the hold the average
   var monthMean = 0;
-  var monthAvg = 0;
-    if(x == 0) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/janCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 1) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/febCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 2) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/marCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 3) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/aprCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 4) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/mayCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 5) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/junCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 6) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/julCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 7) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/augCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 8) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/sepCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 9) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/octCount;
-        monthAvg[x] = monthAvg;
-    } else if(h == 10) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/novCount;
-        monthAvg[x] = monthAvg;
-    } else if(x == 11) {
-        monthMean = monthArr[x];
-        monthAvg = monthMean/decCount;
-        monthAvg[x] = monthAvg;
+  var mAvg = 0;
+    if(u == 0) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/janCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 1) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/febCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 2) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/marCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 3) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/aprCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 4) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/mayCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 5) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/junCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 6) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/julCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 7) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/augCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 8) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/sepCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 9) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/octCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 10) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/novCount;
+        monthAvg[u] = mAvg;
+    } else if(u == 11) {
+        monthMean = monthArr[u];
+        mAvg = monthMean/decCount;
+        monthAvg[u] = mAvg;
     } 
   }
-  console.log(monthAvg);
+  //console.log(monthAvg);
   //creating path for line
   var barPadding = 5;
   // variable frm for rounding the births to a whole number
@@ -821,4 +832,3 @@ d3.json("births.json").then(function(data){
 // you can also upload the json file onto that site
 // just click the plus icon under login to upload a file
   </script>
-
