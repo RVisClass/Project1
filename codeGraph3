@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
+  <style>
+
+div.tooltip {
+  color: white;
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: rgba(0,0,0,.8);
+  border: 2px solid black;
+  pointer-events: none;
+}
+    </style>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
   </style>
@@ -18,13 +33,14 @@
            type="button" 
            value="Average Births per Day" 
            onclick="getGraphTwo()" />
-  </div>
+</div>
   <div id="option">
     <input name="updateButton"
            type="button"
            value="Average Births per Month"
-           onclick="getGraphThree()"/>
+           onclick="getGraphThree()" />
 </div>
+<div class="legend3"></div>
   <chart-area></chart-area>
   <script>
     // this will fetch the first graph 
@@ -213,13 +229,19 @@ for(j = 0; j < yearAvg.length; j++) {
         .attr("stroke-width", 1.5)
         .attr("d", line);//line generator is called
 })
-}// end of graph one function
+} // end of graph one function
+///
+///
+///
+///
+///
+///
 // graph two function
 // average births per day of week
 function getGraphTwo() {
 var margin = { left:80, right:20, top:50, bottom:100 };
-var height = 500 - margin.top - margin.bottom, 
-    width = 800 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom; 
+var width = 800 - margin.left - margin.right;
 
 var g = d3.select("chart-area")
     .append("svg")
@@ -230,10 +252,10 @@ var g = d3.select("chart-area")
             ", " + margin.top + ")");
 
 // Scales
-var x = d3.scaleLinear()
+var x = d3.scaleBand()
     //.base(10)
     .range([0, width])
-    .domain([1, 7]);
+    .domain(["Monday","Tuesday","Wednesday","Thrusday","Friday","Saturday","Sunday"]);
     console.log(x)
 var y = d3.scaleLinear()
     .range([height, 0])
@@ -256,11 +278,8 @@ var yLabel = g.append("text")
     .text("Average Births per Day");
 
 // X Axis
-var xAxisCall = d3.axisBottom(x);
-// need to label this x axis better
-	//.tickFormat(function(d){ return +d; });
-    //.tickValues(["Monday","Tuesday","Wednesday","Thrusday","Friday","Saturday","Sunday"]);
-    //.tickFormat(d3.timeFormat("%a"));
+var xAxisCall = d3.axisBottom(x)
+
 g.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height +")")
@@ -273,35 +292,51 @@ var yAxisCall = d3.axisLeft(y);
 g.append("g")
     .attr("class", "y axis")
     .call(yAxisCall);//step 1
-    var line = d3.line()
-    .x(function(d,i) { return x(i+1); }) // set the x values for the line generator
-    .y(function(d) { return y(d); }) // set the y values for the line generator 
 // legend for graph
 // color needs to be set by hand
-    var legend = g.append("g")
+var svgHeight = 100; 
+var svgWidth = 100;
+var svgLegend = d3.select(".legend3").append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+    var legend = svgLegend.append("svg");
     //starts at bottom right corner of graph
     //positive x values move right
     //negitive x values more left
     //negative y values more up
-        .attr("transform", "translate(-30,-330)");   
+    //.attr("transform", "translate(-30,-330)")   
 
         //legend symbol
         legend.append('rect')
-            .attr("y", height - 10)
-            .attr("x", width - 40)
+            .attr("y", svgHeight - 10)
+            .attr("x", svgWidth - 65)
             .attr("width", 10)
             .attr("height", 10)
-            .style("fill", "steelblue");
+            .style("fill", "orange");
             // legend text
         legend.append('text')
-            .attr("y", height)
-            .attr("x", width)
+            .attr("y", svgHeight)
+            .attr("x", svgWidth)
             .attr("font-size", "20px")
             .attr("text-anchor", "middle")
-            .text("Births");
-    //getting data
-    //remove data/ in data/births to get it to work on block builder
-  
+            .text("Births per da");
+            // test on label is strange
+            // label that just has rect and births
+            // births will only appear if per da text is present
+            // it pushes it out
+//var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+// this makes the tooltip box appear over bars on graph
+// if this was commented out will appear below       
+var tooltip = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("background", "steelblue")
+    .text("a simple tooltip");   
+//getting data
+//remove data/ in data/births to get it to work on block builder
+//g.call(tip);
 d3.json("births.json").then(function(data){
     console.log(data);//step 0
     data.forEach(function(d) {
@@ -433,13 +468,39 @@ d3.json("births.json").then(function(data){
         weekAvg[h] = dayAvg;
     } 
   }
+  console.log(weekAvg);
   //creating path for line
-  g.append("path")
-        .datum(weekAvg)//puts data on line
-        .attr("fill", "none")//styling
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);//line generator is called  
+  var barPadding = 5;
+  // variable frm for rounding the births to a whole number
+  var frm = d3.format(".0f");
+  var barWidth = (width / weekAvg.length);
+  var bars = g.selectAll("rect")
+                .data(weekAvg)
+            .enter().append("rect")
+            //need to flip graph
+                .attr("y", function(d) {
+                    return y(d);
+                })
+                //.attr("x", function(d, i){
+                    //return (i * 5);
+                //})
+                .attr("width", barWidth - barPadding)
+                //this also helps flip the graph
+                .attr("height", function(d) {
+                    return height - y(d);
+                })
+  				.attr("transform", function (d, i) {
+         			var translate = [barWidth * i, 0];
+         			return "translate("+ translate +")";
+                })
+                .attr("fill", function(d) {
+                    return "orange";
+                })
+                .style("width", function(d) { return x(d) + "px"; })
+                .text(function(d) { return d; })
+                .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
+                .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});                  
 })
 }
     
@@ -720,20 +781,44 @@ d3.json("births.json").then(function(data){
         monthAvg[x] = monthAvg;
     } 
   }
+  console.log(monthAvg);
   //creating path for line
-  g.append("path")
-        .datum(monthAvg)//puts data on line
-        .attr("fill", "none")//styling
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);//line generator is called  
+  var barPadding = 5;
+  // variable frm for rounding the births to a whole number
+  var frm = d3.format(".0f");
+  var barWidth = (width / monthAvg.length);
+  var bars = g.selectAll("rect")
+                .data(monthAvg)
+            .enter().append("rect")
+            //need to flip graph
+                .attr("y", function(d) {
+                    return y(d);
+                })
+                //.attr("x", function(d, i){
+                    //return (i * 5);
+                //})
+                .attr("width", barWidth - barPadding)
+                //this also helps flip the graph
+                .attr("height", function(d) {
+                    return height - y(d);
+                })
+  				.attr("transform", function (d, i) {
+         			var translate = [barWidth * i, 0];
+         			return "translate("+ translate +")";
+                })
+                .attr("fill", function(d) {
+                    return "orange";
+                })
+                .style("width", function(d) { return x(d) + "px"; })
+                .text(function(d) { return d; })
+                .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
+                .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});  
 })
 }
 
-
- 
-    // use blockbuilder.org to test code
+ // use blockbuilder.org to test code
 // you can also upload the json file onto that site
 // just click the plus icon under login to upload a file
   </script>
-</body>
+
