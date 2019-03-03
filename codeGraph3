@@ -2,19 +2,6 @@
 <head>
   <meta charset="utf-8">
   <style>
-
-div.tooltip {
-  color: white;
-  position: absolute;
-  text-align: center;
-  width: 60px;
-  height: 28px;
-  padding: 2px;
-  font: 12px sans-serif;
-  background: rgba(0,0,0,.8);
-  border: 2px solid black;
-  pointer-events: none;
-}
     </style>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
@@ -278,7 +265,7 @@ var yLabel = g.append("text")
     .text("Average Births per Day");
 
 // X Axis
-var xAxisCall = d3.axisBottom(x)
+var xAxisCall = d3.axisBottom(x);
 
 g.append("g")
     .attr("class", "x axis")
@@ -519,10 +506,10 @@ var g = d3.select("chart-area")
             ", " + margin.top + ")");
 
 // Scales
-var x = d3.scaleLinear()
+var x = d3.scaleBand()
     //.base(10)
     .range([0, width])
-    .domain([0, 12]);
+    .domain(["January", "February", "March", "April", "May", "June", "July","August","September","October","November","December"]);
     console.log(x)
 var y = d3.scaleLinear()
     .range([height, 0])
@@ -801,13 +788,13 @@ d3.json("data/births.json").then(function(data){
         monthAvg[u] = mAvg;
     } 
   }
-  //console.log(monthAvg);
+  console.log(monthAvg);
   //creating path for line
-  var barPadding = 5;
+  var monPadding = 5;
   // variable frm for rounding the births to a whole number
   var frm = d3.format(".0f");
-  var barWidth = (width / monthAvg.length);
-  var bars2 = g.selectAll("rect")
+  var monWidth = (width / monthAvg.length);
+  var bars = g.selectAll("rect")
                 .data(monthAvg)
             .enter().append("rect")
             //need to flip graph
@@ -817,13 +804,13 @@ d3.json("data/births.json").then(function(data){
                 //.attr("x", function(d, i){
                     //return (i * 5);
                 //})
-                .attr("width", barWidth - barPadding)
+                .attr("width", monWidth - monPadding)
                 //this also helps flip the graph
                 .attr("height", function(d) {
                     return height - y(d);
                 })
   				.attr("transform", function (d, i) {
-         			var translate = [barWidth * i, 0];
+         			var translate = [monWidth * i, 0];
          			return "translate("+ translate +")";
                 })
                 .attr("fill", function(d) {
@@ -833,7 +820,7 @@ d3.json("data/births.json").then(function(data){
                 .text(function(d) { return d; })
                 .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
                 .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});  
+                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});   
 })
 }
 
