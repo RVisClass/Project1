@@ -1,0 +1,842 @@
+// Brian Blancato
+// Epiphany Christian
+// this will fetch the first graph 
+// of average births in a year
+function getGraphOne() {
+    var margin = { left:80, right:20, top:50, bottom:100 };
+    var height = 500 - margin.top - margin.bottom, 
+        width = 800 - margin.left - margin.right;
+        d3.select("#chart-area").attr("align","center");
+    var g = d3.select("#chart-area")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + 
+                ", " + margin.top + ")");
+    
+    // Scales
+    var x = d3.scaleBand()
+        //.base(10)
+        .range([0, width])
+        .domain([0, 370]);
+        console.log(x)
+    var y = d3.scaleLinear()
+        .range([height, 0])
+        .domain([0, 14000]);
+        console.log(y)
+    
+    // Labels
+    var xLabel = g.append("text")
+        .attr("y", height + 50)
+        .attr("x", width / 2)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Days in a Year");
+    var yLabel = g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -40)
+        .attr("x", -170)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Average Births per Day");
+    
+    // X Axis
+    var xAxisCall = d3.axisBottom(x);
+        //.tickFormat(function(d){ return +d; });
+        //.tickValues(["1"])
+        //.tickFormat(d3.format("$"));
+    g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height +")")
+        .call(xAxisCall);
+    
+    // Y Axis
+    var yAxisCall = d3.axisLeft(y);
+        //.tickFormat(function(d){ return +d; });
+        
+    g.append("g")
+        .attr("class", "y axis")
+        .call(yAxisCall);//step 1
+        //generates the line in d3
+        //var line = d3.line()
+        //.x(function(d,i) { return x(i); }) // set the x values for the line generator
+        //.y(function(d) { return y(d); }) // set the y values for the line generator 
+    // legend for graph
+    // color needs to be set by hand
+        /*var legend = g.append("g")
+        //starts at bottom right corner of graph
+        //positive x values move right
+        //negitive x values more left
+        //negative y values more up
+            .attr("transform", "translate(-30,-330)");   
+            // legend symbol
+            legend.append('rect')
+                .attr("y", height - 10)
+                .attr("x", width - 40)
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", "steelblue");
+            // legend text
+            legend.append('text')
+                .attr("y", height)
+                .attr("x", width)
+                .attr("font-size", "20px")
+                .attr("text-anchor", "middle")
+                .text("Births");*/
+        //getting data
+        //remove data/ in data/births to get it to work on block builder
+    d3.json("data/births.json").then(function(data){
+        console.log(data);//step 0
+        data.forEach(function(d) {
+            d.births = +d.births;
+            d.year = +d.year;
+            d.month = +d.month;
+            d.date_of_month = +d.date_of_month;
+            });
+        //creates an array with data of births
+        var birthVal = data.map(function(d) {
+            return d.births;
+        });
+        //creates an array with month values
+        var monthVal = data.map(function(d) {
+            return d.month;
+        });
+        //creates an array with day of the month values
+        var dateVal = data.map(function(d) {
+            return d.date_of_month;
+        });
+    //leap year
+    // should happen four times
+    // 2000, 2004, 2008, 2012
+    // its 59 days away from Jan 1
+    //this is for adding each similar day
+    var year2 = new Array(366);
+    var counter = 0;
+    var leap = 0;
+    var counter2 = 0;
+    var i;
+    for(i = 0; i < birthVal.length; i++) {
+        var temp = 0;
+        if(counter == 366) {
+            counter = 0;
+            temp = year2[counter];
+            year2[counter] = temp + birthVal[i];
+            counter++;
+            counter2++;
+            leap++;
+            // indexes for leap day in birthVal array
+            // i == 59 || i == 1520 || i == 2981 || i == 4442
+            // 59 is the leap day in the array year2
+            // can't use this to fill in 2000 leap year
+            // because it will not input a value into 
+            // year array index for leap day
+            // it will add a value if one is already in the array
+            // the array must not be null
+        } else if (leap == 4 && counter == 59) {
+            temp = year2[59];
+            year2[59] = temp + birthVal[i];
+            counter++;
+            leap = 0; 
+            // index 59 of array year2 is for leap day
+            // counter2 is for every year after 2000
+            // makes sure that leap day is not skipped
+        } else if (counter2 > 0 && counter == 59) {
+            counter++;
+            temp = year2[counter];
+            year2[counter] = temp + birthVal[i];
+            counter++;
+            // this is for every year after 2000
+        } else if(counter2 > 0) {
+            temp = year2[counter];
+            year2[counter] = temp + birthVal[i];
+            counter++;
+            // Fills the year array with values for entire
+            // year of 2000....
+            // 2000 has a leap day in its year
+        } else {
+            year2[i] = birthVal[i];
+            counter++;
+        }
+    } // end of adding each similar day
+    //getting the average of each day
+    
+    var yearAvg = new Array(366);
+    var j;
+    for(j = 0; j < yearAvg.length; j++) {
+        //temp variable for calculating days
+        var tempDay = 0;
+        //getting the leap year average
+        if(j == 59) {
+            var leapAvg = 0;
+            tempDay = year2[59];
+            leapAvg = tempDay/4;
+            yearAvg[59] = leapAvg;
+        } else { //getting averages of all other days
+            var dayAvg = 0;
+            tempDay = year2[j];
+            dayAvg = tempDay/15;// 15 years
+            yearAvg[j] = dayAvg;
+        }//end of getting average of all years
+        }
+        //console.log(yearAvg);
+        //creating the path
+        /*g.append("path")
+            .datum(yearAvg)//puts data on line
+            .attr("fill", "none")//styling
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("d", line);//line generator is called*/
+            //var barPadding = 5;
+            // variable frm for rounding the births to a whole number
+            var frm = d3.format(".0f");
+            var barWidth = (width / yearAvg.length);
+            var barsYear = g.selectAll("rect")
+                          .data(yearAvg)
+                      .enter().append("rect")
+                      //need to flip graph
+                          .attr("y", function(d) {
+                              return y(d);
+                          })
+                          .attr("width", barWidth)
+                          //this also helps flip the graph
+                          .attr("height", function(d) {
+                              return height - y(d);
+                          })
+                            .attr("transform", function (d, i) {
+                               var translate = [barWidth * i, 0];
+                               return "translate("+ translate +")";
+                          })
+                          .attr("fill", function(d) {
+                              return "green";
+                          })
+                          .style("width", function(d) { return x(d) + "px"; })
+                          .text(function(d) { return d; })
+                          .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
+                          .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                          .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+    })
+    } // end of graph one function
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    // graph two function
+    // average births per day of week
+    function getGraphTwo() {
+    var margin = { left:80, right:20, top:50, bottom:100 };
+    var height = 500 - margin.top - margin.bottom; 
+    var width = 800 - margin.left - margin.right;
+    d3.select(".legend1").attr("align","center");
+    d3.select("#chart-area2").attr("align","center");
+    var g = d3.select("#chart-area2")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + 
+                ", " + margin.top + ")");
+    
+    // Scales
+    var x = d3.scaleBand()
+        //.base(10)
+        .range([0, width])
+        .domain(["Monday","Tuesday","Wednesday","Thrusday","Friday","Saturday","Sunday"]);
+        console.log(x)
+    var y = d3.scaleLinear()
+        .range([height, 0])
+        .domain([0, 20000]);
+        console.log(y)
+    
+    // Labels
+    var xLabel = g.append("text")
+        .attr("y", height + 50)
+        .attr("x", width / 2)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Days of the Week");
+    var yLabel = g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -40)
+        .attr("x", -170)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Average Births per Day");
+    
+    // X Axis
+    var xAxisCall = d3.axisBottom(x);
+    
+    g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height +")")
+        .call(xAxisCall);
+    
+    // Y Axis
+    var yAxisCall = d3.axisLeft(y);
+        //.tickFormat(function(d){ return +d; });
+        
+    g.append("g")
+        .attr("class", "y axis")
+        .call(yAxisCall);//step 1
+    // legend for graph
+    // color needs to be set by hand
+    var svgHeight = 100; 
+    var svgWidth = 100;
+    var svgLegend = d3.select(".legend1").append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+        var legend = svgLegend.append("svg");
+        //starts at bottom right corner of graph
+        //positive x values move right
+        //negitive x values more left
+        //negative y values more up
+        //.attr("transform", "translate(-30,-330)")   
+    
+            //legend symbol
+            legend.append('rect')
+                .attr("y", svgHeight - 10)
+                .attr("x", svgWidth - 65)
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", "green");
+                // legend text
+            legend.append('text')
+                .attr("y", svgHeight)
+                .attr("x", svgWidth)
+                .attr("font-size", "20px")
+                .attr("text-anchor", "middle")
+                .text("Births per d");
+                // test on label is strange
+                // label that just has rect and births
+                // births will only appear if per da text is present
+                // it pushes it out
+    //var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+    // this makes the tooltip box appear over bars on graph
+    // if this was commented out will appear below       
+    var tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style("background", "steelblue")
+        .text("a simple tooltip");   
+    //getting data
+    //remove data/ in data/births to get it to work on block builder
+    //g.call(tip);
+    d3.json("data/births.json").then(function(data){
+        console.log(data);//step 0
+        data.forEach(function(d) {
+            d.births = +d.births;
+            d.year = +d.year;
+            d.month = +d.month;
+            d.date_of_month = +d.date_of_month;
+            d.day_of_week = +d.day_of_week;
+            });
+        // creates an array with birth values
+        var birthVal = data.map(function(d) {
+            return d.births;
+        });
+        //creates an array with day of the week values
+        var dayVal = data.map(function(d) {
+            return d.day_of_week;
+        });
+      // array to hold mean of a week
+      // will add up each day of the week for all years
+      var weekArr = new Array(7);
+      // variable for for loop
+      var l;
+      // temp variable to hold a value already in the week array above
+      var addedDay = 0;
+      // counters that will divide each item in the array
+      // to get average
+      var dayOneCount = 0;
+      var dayTwoCount = 0;
+      var dayThreeCount = 0;
+      var dayFourCount = 0;
+      var dayFiveCount = 0;
+      var daySixCount = 0;
+      var daySevenCount = 0;
+      // this for loop will only calculate mean
+      // needed to make sure each if statement had a day...Count var
+      // because I can't add a null val to addedDay var
+      // the below if and else statements without &&
+      // will put elements in a null space of array
+      for(l = 0;l < birthVal.length;l++) {
+        if(dayVal[l] == 1 && dayOneCount > 0) {
+            addedDay = weekArr[0];
+            weekArr[0] = addedDay + birthVal[l];
+            dayOneCount++;
+        } else if(dayVal[l] == 2 && dayTwoCount > 0) {
+            addedDay = weekArr[1];
+            weekArr[1] = addedDay + birthVal[l];
+            dayTwoCount++;
+        } else if(dayVal[l] == 3 && dayThreeCount > 0) {
+            addedDay = weekArr[2];
+            weekArr[2] = addedDay + birthVal[l];
+            dayThreeCount++;
+        } else if(dayVal[l] == 4 && dayFourCount > 0) {
+            addedDay = weekArr[3];
+            weekArr[3] = addedDay + birthVal[l];
+            dayFourCount++;
+        } else if(dayVal[l] == 5 && dayFiveCount > 0) {
+            addedDay = weekArr[4];
+            weekArr[4] = addedDay + birthVal[l];
+            dayFiveCount++;
+        } else if(dayVal[l] == 6 && daySixCount > 0) {
+            addedDay = weekArr[5];
+            weekArr[5] = addedDay + birthVal[l];
+            daySixCount++;
+        } else if(dayVal[l] == 7 && daySevenCount > 0) {
+            addedDay = weekArr[6];
+            weekArr[6] = addedDay + birthVal[l];
+            daySevenCount++;
+        } else if(dayVal[l] == 1) {
+            weekArr[0] = birthVal[l];
+            dayOneCount++;
+        } else if(dayVal[l] == 2) {
+            weekArr[1] = birthVal[l];
+            dayTwoCount++;
+        } else if(dayVal[l] == 3) {
+            weekArr[2] = birthVal[l];
+            dayThreeCount++;
+        } else if(dayVal[l] == 4) {
+            weekArr[3] = birthVal[l];
+            dayFourCount++;
+        } else if(dayVal[l] ==5) {
+            weekArr[4] = birthVal[l];
+            dayFiveCount++;
+        } else if(dayVal[l] == 6) {
+            weekArr[5] = birthVal[l];
+            daySixCount++;
+        } else if(dayVal[l] == 7) {
+            weekArr[6] = birthVal[l];
+            daySevenCount++;
+        }
+      }
+      // end of for statement to calculate the mean
+      // array for holding the averages of the days
+      var weekAvg = new Array(7);
+      // var h is for for loop
+      var h;
+      for(h = 0; h < weekAvg.length; h++) {
+        // dayMean and dayAvg are temp values
+        // dayMean will get the mean value from mean array
+        // dayAvg will be the hold the average
+      var dayMean = 0;
+      var dayAvg = 0;
+        if(h == 0) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/dayOneCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 1) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/dayTwoCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 2) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/dayThreeCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 3) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/dayFourCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 4) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/dayFiveCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 5) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/daySixCount;
+            weekAvg[h] = dayAvg;
+        } else if(h == 6) {
+            dayMean = weekArr[h];
+            dayAvg = dayMean/daySevenCount;
+            weekAvg[h] = dayAvg;
+        } 
+      }
+      //console.log(weekAvg);
+      //creating path for line
+      var barPadding = 5;
+      // variable frm for rounding the births to a whole number
+      var frm = d3.format(".0f");
+      var barWidth = (width / weekAvg.length);
+      var bars = g.selectAll("rect")
+                    .data(weekAvg)
+                .enter().append("rect")
+                //need to flip graph
+                    .attr("y", function(d) {
+                        return y(d);
+                    })
+                    //.attr("x", function(d, i){
+                        //return (i * 5);
+                    //})
+                    .attr("width", barWidth - barPadding)
+                    //this also helps flip the graph
+                    .attr("height", function(d) {
+                        return height - y(d);
+                    })
+                      .attr("transform", function (d, i) {
+                         var translate = [barWidth * i, 0];
+                         return "translate("+ translate +")";
+                    })
+                    .attr("fill", function(d) {
+                        return "green";
+                    })
+                    .style("width", function(d) { return x(d) + "px"; })
+                    .text(function(d) { return d; })
+                    .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
+                    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});                  
+    })
+    }
+        
+        //Third Graph
+        function getGraphThree() {
+    var margin = { left:80, right:20, top:50, bottom:100 };
+    var height = 500 - margin.top - margin.bottom, 
+        width = 800 - margin.left - margin.right;
+        d3.select(".legend2").attr("align","center");
+        d3.select("#chart-area3").attr("align","center");
+    var g = d3.select("#chart-area3")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + 
+                ", " + margin.top + ")");
+    
+    // Scales
+    var x = d3.scaleBand()
+        //.base(10)
+        .range([0, width])
+        .domain(["January", "February", "March", "April", "May", "June", "July","August","September","October","November","December"]);
+        console.log(x)
+    var y = d3.scaleLinear()
+        .range([height, 0])
+        .domain([0, 14000]);
+        console.log(y)
+    
+    // Labels
+    var xLabel = g.append("text")
+        .attr("y", height + 50)
+        .attr("x", width / 2)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Months in a Year");
+    var yLabel = g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -40)
+        .attr("x", -170)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Average Births per Day");
+    
+    // X Axis
+    var xAxisCall = d3.axisBottom(x);
+        //.tickFormat(function(d){ return +d; });
+        //.tickValues(["1"])
+        //.tickFormat(d3.format("$"));
+    g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height +")")
+        .call(xAxisCall);
+    
+    // Y Axis
+    var yAxisCall = d3.axisLeft(y);
+        //.tickFormat(function(d){ return +d; });
+        
+    g.append("g")
+        .attr("class", "y axis")
+        .call(yAxisCall);//step 1
+        //generates the line in d3
+        //var line = d3.line()
+        //.x(function(d,i) { return x(i); }) // set the x values for the line generator
+        //.y(function(d) { return y(d); }) // set the y values for the line generator 
+    // legend for graph
+    // color needs to be set by hand
+    var svgHeight = 100; 
+    var svgWidth = 100;
+    var svgLegend = d3.select(".legend2").append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+        var legend = svgLegend.append("svg");
+        //starts at bottom right corner of graph
+        //positive x values move right
+        //negitive x values more left
+        //negative y values more up
+        //.attr("transform", "translate(-30,-330)")   
+    
+            //legend symbol
+            legend.append('rect')
+                .attr("y", svgHeight - 10)
+                .attr("x", svgWidth - 65)
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", "orange");
+                // legend text
+            legend.append('text')
+                .attr("y", svgHeight)
+                .attr("x", svgWidth)
+                .attr("font-size", "20px")
+                .attr("text-anchor", "middle")
+                .text("Births per d");
+                // test on label is strange
+                // label that just has rect and births
+                // births will only appear if per da text is present
+                // it pushes it out
+    // this makes the tooltip box appear over bars on graph
+    // if this was commented out will appear below       
+    var tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style("background", "steelblue")
+        .text("a simple tooltip");               
+        //getting data
+        //remove data/ in data/births to get it to work on block builder
+    d3.json("data/births.json").then(function(data){
+        console.log(data);//step 0
+        data.forEach(function(d) {
+            d.births = +d.births;
+            d.year = +d.year;
+            d.month = +d.month;
+            d.date_of_month = +d.date_of_month;
+            d.day_of_week = +d.day_of_week;
+            });
+        // creates an array with birth values
+        var birthVal = data.map(function(d) {
+            return d.births;
+        });
+        //creates an array with day of the month values
+        var monthVal = data.map(function(d) {
+            return d.month;
+        });
+      // array to hold mean of a month
+      // will add up each day of the month for all years
+      var monthArr = new Array(12);
+      // variable for for loop
+      var l;
+      // temp variable to hold a value already in the week array above
+      var addedDay = 0;
+      // counters that will divide each item in the array
+      // to get average
+      var janCount = 0;
+      var febCount = 0;
+      var marCount = 0;
+      var aprCount = 0;
+      var mayCount = 0;
+      var junCount = 0;
+      var julCount = 0;
+      var augCount = 0;
+      var sepCount = 0;
+      var octCount = 0;
+      var novCount = 0;
+      var decCount = 0;
+      // this for loop will only calculate mean
+      // needed to make sure each if statement had a day...Count var
+      // because I can't add a null val to addedDay var
+      // the below if and else statements without &&
+      // will put elements in a null space of array
+      for(l = 0;l < birthVal.length;l++) {
+        if(monthVal[l] == 1 && janCount > 0) {
+            addedDay = monthArr[0];
+            monthArr[0] = addedDay + birthVal[l];
+            janCount++;
+        } else if(monthVal[l] == 2 && febCount > 0) {
+            addedDay = monthArr[1];
+            monthArr[1] = addedDay + birthVal[l];
+            febCount++;
+        } else if(monthVal[l] == 3 && marCount > 0) {
+            addedDay = monthArr[2];
+            monthArr[2] = addedDay + birthVal[l];
+            marCount++;
+        } else if(monthVal[l] == 4 && aprCount > 0) {
+            addedDay = monthArr[3];
+            monthArr[3] = addedDay + birthVal[l];
+            aprCount++;
+        } else if(monthVal[l] == 5 && mayCount > 0) {
+            addedDay = monthArr[4];
+            monthArr[4] = addedDay + birthVal[l];
+            mayCount++;
+        } else if(monthVal[l] == 6 && junCount > 0) {
+            addedDay = monthArr[5];
+            monthArr[5] = addedDay + birthVal[l];
+            junCount++;
+        } else if(monthVal[l] == 7 && julCount > 0) {
+            addedDay = monthArr[6];
+            monthArr[6] = addedDay + birthVal[l];
+            julCount++;
+          } else if(monthVal[l] == 8 && augCount > 0) {
+            addedDay = monthArr[7];
+            monthArr[7] = addedDay + birthVal[l];
+            augCount++;
+        } else if(monthVal[l] == 9 && sepCount > 0) {
+            addedDay = monthArr[8];
+            monthArr[8] = addedDay + birthVal[l];
+            sepCount++;
+        } else if(monthVal[l] == 10 && octCount > 0) {
+            addedDay = monthArr[9];
+            monthArr[9] = addedDay + birthVal[l];
+            octCount++;
+        } else if(monthVal[l] == 11 && novCount > 0) {
+            addedDay = monthArr[10];
+            monthArr[10] = addedDay + birthVal[l];
+            novCount++;
+        } else if(monthVal[l] == 12 && decCount > 0) {
+            addedDay = monthArr[11];
+            monthArr[11] = addedDay + birthVal[l];
+            decCount++;
+          
+        } else if(monthVal[l] == 1) {
+            monthArr[0] = birthVal[l];
+            janCount++;
+        } else if(monthVal[l] == 2) {
+            monthArr[1] = birthVal[l];
+            febCount++;
+        } else if(monthVal[l] == 3) {
+            monthArr[2] = birthVal[l];
+            marCount++;
+        } else if(monthVal[l] == 4) {
+            monthArr[3] = birthVal[l];
+            aprCount++;
+        } else if(monthVal[l] ==5) {
+            monthArr[4] = birthVal[l];
+            mayCount++;
+        } else if(monthVal[l] == 6) {
+            monthArr[5] = birthVal[l];
+            junCount++;
+        } else if(monthVal[l] == 7) {
+            monthArr[6] = birthVal[l];
+            julCount++;
+        }else if(monthVal[l] == 8) {
+            monthArr[7] = birthVal[l];
+            augCount++;
+        } else if(monthVal[l] == 9) {
+            monthArr[8] = birthVal[l];
+            sepCount++;
+        } else if(monthVal[l] == 10) {
+            monthArr[9] = birthVal[l];
+            octCount++;
+        } else if(monthVal[l] ==11) {
+            monthArr[10] = birthVal[l];
+            novCount++;
+        } else if(monthVal[l] == 12) {
+            monthArr[11] = birthVal[l];
+            decCount++;
+          }
+      }
+      //console.log(monthArr);
+      // end of for statement to calculate the mean
+      // array for holding the averages of the months
+      var monthAvg = new Array(12);
+      // var x is for for loop
+      var u;
+      for(u = 0; u < monthAvg.length; u++) {
+        // monthMean and monthAvg are temp values
+        // monthMean will get the mean value from mean array
+        // monthAvg will be the hold the average
+      var monthMean = 0;
+      var mAvg = 0;
+        if(u == 0) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/janCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 1) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/febCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 2) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/marCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 3) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/aprCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 4) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/mayCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 5) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/junCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 6) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/julCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 7) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/augCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 8) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/sepCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 9) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/octCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 10) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/novCount;
+            monthAvg[u] = mAvg;
+        } else if(u == 11) {
+            monthMean = monthArr[u];
+            mAvg = monthMean/decCount;
+            monthAvg[u] = mAvg;
+        } 
+      }
+      //console.log(monthAvg);
+      //creating path for line
+      var monPadding = 5;
+      // variable frm for rounding the births to a whole number
+      var frm = d3.format(".0f");
+      var monWidth = (width / monthAvg.length);
+      var bars = g.selectAll("rect")
+                    .data(monthAvg)
+                .enter().append("rect")
+                //need to flip graph
+                    .attr("y", function(d) {
+                        return y(d);
+                    })
+                    //.attr("x", function(d, i){
+                        //return (i * 5);
+                    //})
+                    .attr("width", monWidth - monPadding)
+                    //this also helps flip the graph
+                    .attr("height", function(d) {
+                        return height - y(d);
+                    })
+                      .attr("transform", function (d, i) {
+                         var translate = [monWidth * i, 0];
+                         return "translate("+ translate +")";
+                    })
+                    .attr("fill", function(d) {
+                        return "orange";
+                    })
+                    .style("width", function(d) { return x(d) + "px"; })
+                    .text(function(d) { return d; })
+                    .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
+                    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});   
+    })
+    }
+    function closeGraphOne() {
+        d3.select("#chart-area").selectAll("*").remove();
+    }
+    function closeGraphTwo() {
+        d3.select("#chart-area2").selectAll("*").remove();
+        d3.select(".legend1").selectAll("*").remove();
+    }
+    function closeGraphThree() {
+        d3.select("#chart-area3").selectAll("*").remove();
+        d3.select(".legend2").selectAll("*").remove();
+    }
+    
+     // use blockbuilder.org to test code
+    // you can also upload the json file onto that site
+    // just click the plus icon under login to upload a file
