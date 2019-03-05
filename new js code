@@ -16,10 +16,10 @@ function getGraphOne() {
                 ", " + margin.top + ")");
     
     // Scales
-    var x = d3.scaleBand()
+    var x = d3.scaleLinear()
         //.base(10)
         .range([0, width])
-        .domain([0, 370]);
+        .domain([-5, 370]);
         console.log(x)
     var y = d3.scaleLinear()
         .range([height, 0])
@@ -59,12 +59,19 @@ function getGraphOne() {
         .attr("class", "y axis")
         .call(yAxisCall);//step 1
         //generates the line in d3
-        //var line = d3.line()
-        //.x(function(d,i) { return x(i); }) // set the x values for the line generator
-        //.y(function(d) { return y(d); }) // set the y values for the line generator 
+        var line = d3.line()
+            .x(function(d,i) { return x(i); }) // set the x values for the line generator
+            .y(function(d) { return y(d); }) // set the y values for the line generator 
+            var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("background", "steelblue")
+            .text("a simple tooltip");        
     // legend for graph
     // color needs to be set by hand
-        /*var legend = g.append("g")
+        var legend = g.append("g")
         //starts at bottom right corner of graph
         //positive x values move right
         //negitive x values more left
@@ -72,18 +79,31 @@ function getGraphOne() {
             .attr("transform", "translate(-30,-330)");   
             // legend symbol
             legend.append('rect')
-                .attr("y", height - 10)
-                .attr("x", width - 40)
+                .attr("y", height)
+                .attr("x", width - 110)
                 .attr("width", 10)
                 .attr("height", 10)
                 .style("fill", "steelblue");
+            legend.append('rect')
+                .attr("y", height - 25)
+                .attr("x", width - 110)
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("fill-opacity","0.5")
+                .style("fill", "green");
             // legend text
             legend.append('text')
-                .attr("y", height)
-                .attr("x", width)
+                .attr("y", height+10)
+                .attr("x", width-69)
                 .attr("font-size", "20px")
                 .attr("text-anchor", "middle")
-                .text("Births");*/
+                .text("Births");
+            legend.append('text')
+                .attr("y", height-15)
+                .attr("x", width-23)
+                .attr("font-size", "20px")
+                .attr("text-anchor", "middle")
+                .text("Important Dates");
         //getting data
         //remove data/ in data/births to get it to work on block builder
     d3.json("data/births.json").then(function(data){
@@ -181,15 +201,28 @@ function getGraphOne() {
         }
         //console.log(yearAvg);
         //creating the path
-        /*g.append("path")
+        g.append("path")
             .datum(yearAvg)//puts data on line
             .attr("fill", "none")//styling
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
-            .attr("d", line);//line generator is called*/
+            .attr("d", line);//line generator is called
+            //d3.json("data/crucialdates.json").then(function(data){
+                //console.log(data);//step 0
+                //data.forEach(function(d) {
+                    //d.day = +d.day;
+                    //d.birth_total = +d.birth_total;
+                    //});
+                    //var circleData = g.append("circle")
+                            //.attr("cx", 679)
+                            //.attr("cy", 187)
+                            //.attr("r", 5)
+                            //.attr("fill-opacity","0.5")
+                            //.style("fill", "green");
+                //})
             //var barPadding = 5;
             // variable frm for rounding the births to a whole number
-            var frm = d3.format(".0f");
+            /*var frm = d3.format(".0f");
             var barWidth = (width / yearAvg.length);
             var barsYear = g.selectAll("rect")
                           .data(yearAvg)
@@ -214,8 +247,32 @@ function getGraphOne() {
                           .text(function(d) { return d; })
                           .on("mouseover", function(d){tooltip.text(frm(d)); return tooltip.style("visibility", "visible");})
                           .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-                          .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+                          .on("mouseout", function(){return tooltip.style("visibility", "hidden");});*/
     })
+    d3.json("data/crucialdates.json").then(function(data){
+                console.log(data);//step 0
+                data.forEach(function(d) {
+                    d.day = +d.day;
+                    d.birth_total = +d.birth_total;
+                    d.x_coord = +d.x_coord;
+                    d.y_coord = +d.y_coord;
+                    });
+                    var circleMaker = g.selectAll("circle")
+                          .data(data)
+                      .enter().append("circle")
+                      .attr("cx", function(d) {
+                        return d.x_coord;
+                    })
+                      .attr("cy", function(d) {
+                        return d.y_coord;
+                    })
+                      .attr("r", 5)
+                      .attr("fill-opacity","0.5")
+                      .style("fill", "green")
+                .on("mouseover", function(d){tooltip.text("Date: "+d.full_date+"\n"+"Total Births: "+d.birth_total); return tooltip.style("visibility", "visible");})
+                          .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                          .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+                        })
     } // end of graph one function
     ///
     ///
@@ -478,7 +535,7 @@ function getGraphOne() {
                         return height - y(d);
                     })
                       .attr("transform", function (d, i) {
-                         var translate = [barWidth * i, 0];
+                         var translate = [1+(barWidth * i), 0];
                          return "translate("+ translate +")";
                     })
                     .attr("fill", function(d) {
@@ -812,7 +869,7 @@ function getGraphOne() {
                         return height - y(d);
                     })
                       .attr("transform", function (d, i) {
-                         var translate = [monWidth * i, 0];
+                         var translate = [1+(monWidth * i), 0];
                          return "translate("+ translate +")";
                     })
                     .attr("fill", function(d) {
