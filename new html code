@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <title>Project One</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+        <div id="option">
+                <input name="updateButton" 
+                       type="button" 
+                       value="Average Births per Year" 
+                       onclick="getGraphOne();closeGraphTwo();closeGraphThree();" />
+            </div>
+              <div id="option">
+                <input name="updateButton" 
+                       type="button" 
+                       value="Average Births per Day" 
+                       onclick="getGraphTwo();closeGraphOne();closeGraphThree();" />
+            </div>
+              <div id="option">
+                <input name="updateButton"
+                       type="button"
+                       value="Average Births per Month"
+                       onclick="getGraphThree();closeGraphOne();closeGraphTwo();" />
+            </div>
+    
+    <!-- Bootstrap grid setup -->
+    <div class="legend2"></div>
+  <div class="container">
+        <div class="row">
+            <div id="chart-area3"></div>  
+        </div>
+    </div>
+    <div class="legend1"></div>
+    <div class="container">
+            <div class="row">
+                <div id="chart-area2"></div>  
+            </div>
+        </div>
+    <div class="container">
+        <div class="row">
+            <div id="chart-area"></div>  
+        </div>
+    </div>
+
+<!-- External JS libraries -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/d3.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<!-- Custom JS -->
+<script src="js/pro1.js"></script>
+
+</body>
+</html>
+</html>
