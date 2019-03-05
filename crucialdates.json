@@ -1,0 +1,51 @@
+[
+  {
+    "day": 0,
+    "birth_total": 7735,
+    "full_date": "January 1st",
+    "x_coord": 10,
+    "y_coord": 155
+  },
+  {
+    "day": 44,
+    "birth_total": 11999,
+    "full_date": "February 14th",
+    "x_coord": 92,
+    "y_coord": 53
+  },
+  {
+    "day": 185,
+    "birth_total": 8815,
+    "full_date": "July 4th",
+    "x_coord": 355,
+    "y_coord": 130
+  },
+  {
+    "day": 255,
+    "birth_total": 12767,
+    "full_date": "September 12th",
+    "x_coord": 485,
+    "y_coord": 33
+  },
+  {
+    "day": 262,
+    "birth_total": 12696,
+    "full_date": "September 19th",
+    "x_coord": 499,
+    "y_coord": 33
+  },
+  {
+    "day": 327,
+    "birth_total": 9875,
+    "full_date": "November 23rd",
+    "x_coord": 620,
+    "y_coord": 103
+  },
+  {
+    "day": 359,
+    "birth_total": 6438,
+    "full_date": "December 25th",
+    "x_coord": 679,
+    "y_coord": 187
+  }
+]
